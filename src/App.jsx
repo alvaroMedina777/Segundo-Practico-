@@ -1,6 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Box, Container, TextField, Typography } from "@mui/material";
 import { useState } from "react";
+import axios from 'axios';
 
 export default function App() {
   const [city, setCity] = useState("");
@@ -20,7 +21,7 @@ export default function App() {
   });
 
   const API_URL = "https://api.openweathermap.org/data/2.5/weather";
-  const API_KEY = "30d38b26954359266708f92e1317dac0"; //Clave api / si se trata de un proyecto para publicar deberiamos esconder esto
+  const API_KEY = "30d38b26954359266708f92e1317dac0"; // Clave API / si se trata de un proyecto para publicar deberíamos esconder esto
 
   const mayusculas = (str) => {
     return str
@@ -28,7 +29,6 @@ export default function App() {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
-
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -62,14 +62,20 @@ export default function App() {
       }
 
       const data = await response.json();
-      setWeather({
+      const weatherData = {
         city: data.name,
         country: data.sys.country,
         temp: data.main.temp,
         condition: data.weather[0].main,
         icon: `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
         conditionText: mayusculas(data.weather[0].description),
-      });
+      };
+
+      setWeather(weatherData);
+
+      // Enviar datos del clima al backend
+      await axios.post('http://localhost:5000/api/history', weatherData);
+
     } catch (error) {
       console.log(error);
       setError({
